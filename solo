@@ -54,7 +54,7 @@ OB_PID=\$!
 onboard &
 
 # Start custom mouse and FN-key daemon
-python3 /roms/tools/arkstandalone/kiosk-mouse-daemon.py &
+python3 /roms/tools/solo/kiosk-mouse-daemon.py &
 MOUSE_PID=\$!
 
 # Run the target application
