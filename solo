@@ -1,0 +1,76 @@
+#!/bin/bash
+# run_kiosk_app.sh
+# Usage: ./run_kiosk_app.sh "command to run"
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 '<app_command>'"
+    exit 1
+fi
+
+APP_COMMAND="$1"
+
+sudo systemctl stop emulationstation
+sudo rm -f /tmp/.X0-lock
+
+# Create Openbox config to hide decorations and maximize
+mkdir -p /tmp/kiosk_ob_config/openbox
+cat << 'OBEOF' > /tmp/kiosk_ob_config/openbox/rc.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<openbox_config xmlns="http://openbox.org/3.4/rc" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <theme>
+    <keepBorder>no</keepBorder>
+  </theme>
+  <applications>
+    <application class="*">
+      <decor>no</decor>
+      <maximized>yes</maximized>
+    </application>
+    <application class="Onboard">
+      <maximized>no</maximized>
+      <fullscreen>no</fullscreen>
+      <layer>above</layer>
+      <position force="yes">
+        <x>center</x>
+        <y>bottom</y>
+      </position>
+    </application>
+  </applications>
+</openbox_config>
+OBEOF
+
+# Create a temporary xinitrc for this session
+XINITRC="/tmp/kiosk_xinitrc"
+
+cat << XEOF > $XINITRC
+#!/bin/bash
+# Start dbus session
+eval \$(dbus-launch --sh-syntax --exit-with-session)
+
+# Start Openbox window manager with custom config
+openbox --config-file /tmp/kiosk_ob_config/openbox/rc.xml &
+OB_PID=\$!
+
+# Start Onboard keyboard in background
+onboard &
+
+# Start custom mouse and FN-key daemon
+python3 /roms/tools/arkstandalone/kiosk-mouse-daemon.py &
+MOUSE_PID=\$!
+
+# Run the target application
+eval "$APP_COMMAND"
+
+# When the app exits, kill the background processes
+kill -9 \$MOUSE_PID 2>/dev/null
+pkill -9 -f kiosk-mouse-daemon.py
+kill -9 \$(pgrep onboard) 2>/dev/null
+kill \$OB_PID 2>/dev/null
+XEOF
+
+chmod +x $XINITRC
+
+# Start X
+startx $XINITRC -- :0 vt1
+
+# Restart emulationstation when done
+sudo systemctl start emulationstation
