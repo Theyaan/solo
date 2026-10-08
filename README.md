@@ -42,3 +42,5 @@ You can use this directly in the terminal, or place it inside a `.sh` file in yo
 - **Select / Start**: Escape / Enter
 - **FN (Center/Menu button)**: Toggles the On-Screen Keyboard
 - **Start + Select (Hold)**: Force Quit app and return to EmulationStation
+
+**The mouse emulation is highly inspired(basically a copy) by sjsltech’s xfce Desktop environment mouse emulation so huge thanks to him.**
