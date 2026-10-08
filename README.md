@@ -14,14 +14,11 @@ ArkStandalone (via the `solo` command) allows you to run standard Linux desktop 
 ## Installation
 
 1. Clone or download this repository to `/roms/tools/solo/`.
-2. Make the scripts executable:
+2. Run the automated install script to install dependencies, set permissions, and create the global `solo` command:
    ```bash
-   chmod +x /roms/tools/solo/solo
-   chmod +x /roms/tools/solo/kiosk-mouse-daemon.py
-   ```
-3. (Optional) Create a global symlink so you can use it from anywhere:
-   ```bash
-   sudo ln -sf /roms/tools/solo/solo /usr/local/bin/solo
+   cd /roms/tools/solo
+   chmod +x install.sh
+   ./install.sh
    ```
 
 ## Usage
